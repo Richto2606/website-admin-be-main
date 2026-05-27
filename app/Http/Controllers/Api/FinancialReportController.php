@@ -47,11 +47,12 @@ class FinancialReportController
             $query->byTitle($title);
         }
 
-        if (in_array($sortBy, ['name', 'created_at', 'updated_at'])) {
+        if (in_array($sortBy, ['name', 'title', 'report_date', 'created_at', 'updated_at'])) {
             $query->orderBy($sortBy, 'desc');
         }
 
         $financialReports = $query->paginate($limit);
+        
         foreach ($financialReports as $financialReport) {
             if ($financialReport->report_evidence != null) {
                 $financialReport->report_evidence = Storage::url($financialReport->report_evidence);
@@ -136,7 +137,7 @@ class FinancialReportController
         return ApiResponse::success(SuccessMessages::SUCCESS_GET_FINANCIAL_REPORT, $financialReport);
     }
 
-    public function showFile($id)
+    public function showFile(string $id)
     {
         $financialReport = FinancialReport::find($id);
 
@@ -235,7 +236,7 @@ class FinancialReportController
         }
     }
 
-    public function showFileReport($filename)
+    public function showFileReport(string $filename)
     {
         $filePath = FileConstant::FOLDER_EXPORT_REPORT . '/' . $filename;
         try {
@@ -302,9 +303,9 @@ class FinancialReportController
                 $input['report_file_name'] = $fileName;
             }
 
-            $financialReport->update(array_filter($input, function ($value) {
+            $input = array_filter($input, function ($value) {
                 return !is_null($value);
-            }));
+            });
 
             $financialReport->update($input);
 
@@ -319,25 +320,30 @@ class FinancialReportController
     public function syncPayment()
     {
         try {
-            $payments = Payment::where('move_to_report', false)
+            $payments = Payment::with('resident')
+                ->where('move_to_report', false)
                 ->where('status', 'Sudah Dibayar')
                 ->get();
+
+            Log::info('Syncing payments. Count: ' . $payments->count());
+
             if ($payments->isEmpty()) {
                 return ApiResponse::error(sprintf(ErrorMessages::MESSAGE_CANT_SYNC, 'payment'), 404);
             }
 
             foreach ($payments as $payment) {
-
-                $resident = Resident::find($payment->resident_id);
+                $residentName = $payment->resident ? $payment->resident->name : 'Unknown';
 
                 $input = [
-                    'title' => ValidationMessages::SYNC_PAYMENT . '_' . $resident->name,
+                    'title' => ValidationMessages::SYNC_PAYMENT . '_' . $residentName,
                     'report_date' => $payment->billing_date,
                     'report_amount' => $payment->billing_amount,
                     'report_categories' => 'Pemasukan',
                 ];
+                
                 $financialReport = FinancialReport::create($input);
                 if (!$financialReport) {
+                    Log::error('Failed to create financial report for payment ID: ' . $payment->id);
                     return ApiResponse::error(sprintf(ErrorMessages::FAILED_SYNC_MODEL, 'Payment'), 500);
                 }
 

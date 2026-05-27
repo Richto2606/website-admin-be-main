@@ -44,22 +44,19 @@ class ResidentController
             $query->orderBy($sortBy, $orderBy);
         }
 
-        $residents = $query->paginate($limit);
+        $residents = $query->with(['originCampuses', 'roomNumbers', 'originCities'])->paginate($limit);
 
         foreach ($residents as $resident) {
-            $originCampus = OriginCampus::find($resident->origin_campus_id);
-            if ($originCampus) {
-                $resident->origin_campus = $originCampus->name;
+            if ($resident->originCampuses) {
+                $resident->origin_campus = $resident->originCampuses->name;
             }
 
-            $roomNumber = RoomNumber::find($resident->room_number_id);
-            if ($roomNumber) {
-                $resident->room_number = $roomNumber->name;
+            if ($resident->roomNumbers) {
+                $resident->room_number = $resident->roomNumbers->name;
             }
 
-            $originCities = OriginCity::find($resident->origin_city_id);
-            if ($originCities) {
-                $resident->origin_city = $originCities->name;
+            if ($resident->originCities) {
+                $resident->origin_city = $resident->originCities->name;
             }
         }
 
@@ -83,12 +80,11 @@ class ResidentController
             $query->orderBy($sortBy, 'asc');
         }
 
-        $residents = $query->paginate($limit);
+        $residents = $query->with('roomNumbers')->paginate($limit);
 
         foreach ($residents as $resident) {
-            $roomNumber = RoomNumber::find($resident->room_number_id);
-            if ($roomNumber) {
-                $resident->room_number = $roomNumber->name;
+            if ($resident->roomNumbers) {
+                $resident->room_number = $resident->roomNumbers->name;
                 $resident->name = $resident->name . ' - ' . $resident->room_number;
             }
         }
@@ -146,7 +142,7 @@ class ResidentController
         }
     }
 
-    public function show($id)
+    public function show(string $id)
     {
         $resident = Resident::find($id);
 
@@ -157,7 +153,7 @@ class ResidentController
         return ApiResponse::success(SuccessMessages::SUCCESS_GET_RESIDENT, $resident);
     }
 
-    public function update(Request $request, $id)
+    public function update(Request $request, string $id)
     {
         $validator = Validator::make($request->all(), [
             'name' => 'nullable|string|max:255',
@@ -225,7 +221,7 @@ class ResidentController
         }
     }
 
-    public function destroy($id)
+    public function destroy(string $id)
     {
         $resident = Resident::find($id);
 

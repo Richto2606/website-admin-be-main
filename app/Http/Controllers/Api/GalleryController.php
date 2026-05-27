@@ -50,12 +50,11 @@ class GalleryController extends Controller
             $query->orderBy($sortBy, 'desc');
         }
 
-        $galleries = $query->paginate($limit);
+        $galleries = $query->with('category')->paginate($limit);
 
         foreach ($galleries as $gallery) {
-            $category = CategoryGallery::find($gallery->category_id);
-            if ($category) {
-                $gallery->category_name = $category->name;
+            if ($gallery->category) {
+                $gallery->category_name = $gallery->category->name;
             }
             if ($gallery->file != null) {
                 $gallery->file = Storage::url($gallery->file);
@@ -128,7 +127,7 @@ class GalleryController extends Controller
         }
     }
 
-    public function show($id)
+    public function show(string $id)
     {
         $gallery = Gallery::find($id);
 
@@ -142,7 +141,7 @@ class GalleryController extends Controller
         return ApiResponse::success(SuccessMessages::SUCCESS_GET_GALLERY, $gallery);
     }
 
-    public function showFile($id)
+    public function showFile(string $id)
     {
         $gallery = Gallery::find($id);
 
@@ -243,7 +242,7 @@ class GalleryController extends Controller
         }
     }
 
-    public function destroy($id)
+    public function destroy(string $id)
     {
         $gallery = Gallery::find($id);
 

@@ -14,8 +14,8 @@ class StaticController extends Controller
 {
     public function getResidentActive()
     {
-        $activeResidentsCount = Resident::query()->where('status', 'active')->count();
-        $totalResidentsCount = Resident::all()->count();
+        $activeResidentsCount = Resident::where('status', 'active')->count();
+        $totalResidentsCount = Resident::count();
         $data = [
             'data_active' => $activeResidentsCount,
             'data_count' => $totalResidentsCount,
@@ -38,7 +38,7 @@ class StaticController extends Controller
         return ApiResponse::success(SuccessMessages::SUCCESS_GET_ROOM_NUMBER, $data);
     }
 
-    public function getPemasukan($bulan)
+    public function getPemasukan(int $bulan)
     {
         if ($bulan < 1 || $bulan > 12) {
             return ApiResponse::error("Bulan tidak valid", 400);
@@ -71,7 +71,7 @@ class StaticController extends Controller
         return ApiResponse::success(SuccessMessages::SUCCESS_GET_FINANCIAL_REPORT, $data);
     }
 
-    public function getPengeluran($bulan)
+    public function getPengeluran(int $bulan)
     {
         if ($bulan < 1 || $bulan > 12) {
             return ApiResponse::error("Bulan tidak valid", 400);
@@ -106,8 +106,8 @@ class StaticController extends Controller
 
     public function getSinkronisasiPayment()
     {
-        $activeSinkronisasiCount = Payment::query()->where('move_to_report', '0')->count();
-        $totalSinkronisasiCount = Resident::all()->count();
+        $activeSinkronisasiCount = Payment::where('move_to_report', '0')->count();
+        $totalSinkronisasiCount = Payment::count();
         $data = [
             'data_active' => $activeSinkronisasiCount,
             'data_count' => $totalSinkronisasiCount,

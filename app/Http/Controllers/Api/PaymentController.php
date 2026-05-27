@@ -49,12 +49,11 @@ class PaymentController
             $query->orderBy($sortBy, 'desc');
         }
 
-        $payments = $query->paginate($limit);
+        $payments = $query->with('resident')->paginate($limit);
 
         foreach ($payments as $payment) {
-            $resident = Resident::find($payment->resident_id);
-            if ($resident) {
-                $payment->resident_name = $resident->name;
+            if ($payment->resident) {
+                $payment->resident_name = $payment->resident->name;
             }
             if ($payment->payment_evidence != null) {
                 $payment->payment_evidence = Storage::url($payment->payment_evidence);
@@ -151,7 +150,7 @@ class PaymentController
         return ApiResponse::success(SuccessMessages::SUCCESS_GET_PAYMENT, $payment);
     }
 
-    public function showFile($id)
+    public function showFile(string $id)
     {
         $payment = Payment::find($id);
 

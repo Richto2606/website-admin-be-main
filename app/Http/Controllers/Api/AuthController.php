@@ -85,11 +85,12 @@ class AuthController extends Controller
         try {
             $user = User::where('email', $request->email)->first();
 
-            if ($user->role != 'Admin') {
-                return ApiResponse::error(ErrorMessages::INVALID_ROLE_ACCESS, 401);
-            }
             if (!$user) {
                 return ApiResponse::error(ErrorMessages::INVALID_CREDENTIALS, 401);
+            }
+
+            if ($user->role != 'Admin') {
+                return ApiResponse::error(ErrorMessages::INVALID_ROLE_ACCESS, 401);
             }
 
             if (!Hash::check($request->password, $user->password)) {
