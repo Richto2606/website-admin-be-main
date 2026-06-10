@@ -67,7 +67,7 @@ class AuthController extends Controller
         }
     }
 
-    public function login(Request $request)
+   public function login(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'email' => 'required|email',
@@ -89,9 +89,8 @@ class AuthController extends Controller
                 return ApiResponse::error(ErrorMessages::INVALID_CREDENTIALS, 401);
             }
 
-            if ($user->role != 'Admin') {
-                return ApiResponse::error(ErrorMessages::INVALID_ROLE_ACCESS, 401);
-            }
+            // Pengecekan Role "Admin" DIHAPUS agar User biasa juga bisa login dan mendapatkan token.
+            // Biarkan Frontend (Next.js) yang bertugas memilah arah halamannya berdasarkan role.
 
             if (!Hash::check($request->password, $user->password)) {
                 return ApiResponse::error(ErrorMessages::INVALID_CREDENTIALS, 401);
@@ -101,7 +100,7 @@ class AuthController extends Controller
 
             $successData = [
                 'name' => $user->name,
-                'role' => $user->role,
+                'role' => $user->role, // Data role ini yang akan dibaca oleh Next.js
                 'email' => $user->email,
                 'access_token' => $token,
             ];

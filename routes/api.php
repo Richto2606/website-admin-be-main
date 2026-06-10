@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\PaymentController;
 use App\Http\Controllers\Api\RoomNumberController;
 use App\Http\Controllers\Api\OriginCityController;
 use App\Http\Controllers\Api\StaticController;
+use App\Http\Controllers\API\PendaftaranController;
 use App\Http\Middleware\HeaderMiddleware;
 use App\Http\Middleware\JwtMiddleware;
 use Illuminate\Support\Facades\Route;
@@ -37,6 +38,12 @@ Route::middleware([JwtMiddleware::class, HeaderMiddleware::class])->group(functi
         Route::get('residents/{id}', [ResidentController::class, 'show']);
         Route::put('residents/{id}', [ResidentController::class, 'update']);
         Route::delete('residents/{id}', [ResidentController::class, 'destroy']);
+        Route::get('pendaftaran', [PendaftaranController::class, 'index']); // GET untuk ambil data
+        Route::post('pendaftaran', [PendaftaranController::class, 'store']);
+        Route::put('pendaftaran/{id}', [PendaftaranController::class, 'updateStatus']);
+        // -------------------------
+
+        Route::get('categories', [CategoryController::class, 'index']);
 
         Route::get('categories', [CategoryController::class, 'index']);
         Route::get('room-numbers', [RoomNumberController::class, 'index']);
