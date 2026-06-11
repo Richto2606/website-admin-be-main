@@ -10,7 +10,7 @@ use App\Http\Controllers\Api\PaymentController;
 use App\Http\Controllers\Api\RoomNumberController;
 use App\Http\Controllers\Api\OriginCityController;
 use App\Http\Controllers\Api\StaticController;
-use App\Http\Controllers\API\PendaftaranController;
+use App\Http\Controllers\Api\PendaftaranController;
 use App\Http\Middleware\HeaderMiddleware;
 use App\Http\Middleware\JwtMiddleware;
 use Illuminate\Support\Facades\Route;

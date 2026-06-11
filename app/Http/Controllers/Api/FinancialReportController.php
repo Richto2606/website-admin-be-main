@@ -21,7 +21,9 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Symfony\Component\HttpFoundation\Response;
 
-class FinancialReportController
+use App\Http\Controllers\Controller;
+
+class FinancialReportController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -362,15 +364,22 @@ class FinancialReportController
      */
     public function destroy(string $id)
     {
-        $financialReport = FinancialReport::find($id);
+        try {
+            $financialReport = FinancialReport::find($id);
 
-        if (!$financialReport) {
-            return ApiResponse::error(sprintf(ErrorMessages::MESSAGE_NOT_FOUND, 'Financial Report'), 404);
+            if (!$financialReport) {
+                return ApiResponse::error(sprintf(ErrorMessages::MESSAGE_NOT_FOUND, 'Financial Report'), 404);
+            }
+
+            if (!empty($financialReport->report_evidence)) {
+                Storage::disk(FileConstant::FOLDER_PUBLIC)->delete($financialReport->report_evidence);
+            }
+            
+            $financialReport->delete();
+
+            return ApiResponse::success(SuccessMessages::SUCCESS_DELETE_FINANCIAL_REPORT);
+        } catch (\Exception $e) {
+            return ApiResponse::error($e->getMessage(), 500);
         }
-
-        Storage::disk(FileConstant::FOLDER_PUBLIC)->delete($financialReport->report_evidence);
-        $financialReport->delete();
-
-        return ApiResponse::success(SuccessMessages::SUCCESS_DELETE_FINANCIAL_REPORT);
     }
 }

@@ -12,6 +12,9 @@ class PendaftaranBaru extends Model
     // Arahkan ke nama tabel yang benar
     protected $table = 'pendaftaran_baru';
 
+    // TAMBAHKAN BARIS INI: Untuk memperbaiki error 'Unknown column id'
+    protected $primaryKey = 'id_pendaftaran';
+
     // Tambahkan user_id ke dalam array fillable agar bisa disimpan
     protected $fillable = [
         'user_id', 

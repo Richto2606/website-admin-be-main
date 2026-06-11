@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Http\Controllers\API;
+namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\PendaftaranBaru;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
-class PendaftaranController  // Pastikan extends Controller
+class PendaftaranController extends Controller
 {
     // FUNGSI BARU: Untuk menampilkan data di tabel Dashboard Admin
     public function index()
@@ -17,6 +17,7 @@ class PendaftaranController  // Pastikan extends Controller
             $pendaftar = PendaftaranBaru::orderBy('created_at', 'desc')->get();
 
             return response()->json([
+                'success' => true,
                 'status'  => 'success',
                 'message' => 'Data pendaftar berhasil diambil',
                 'data'    => $pendaftar
@@ -24,6 +25,7 @@ class PendaftaranController  // Pastikan extends Controller
 
         } catch (\Exception $e) {
             return response()->json([
+                'success' => false,
                 'status'  => 'error',
                 'message' => 'Gagal mengambil data: ' . $e->getMessage()
             ], 500);
@@ -32,7 +34,6 @@ class PendaftaranController  // Pastikan extends Controller
 
     public function store(Request $request)
     {
-        // ... (fungsi store kamu tetap sama, tidak perlu diubah)
         $validator = Validator::make($request->all(), [
             'nama_lengkap'  => 'required|string|max:100',
             'nim'           => 'required|string|max:20',
@@ -45,6 +46,7 @@ class PendaftaranController  // Pastikan extends Controller
 
         if ($validator->fails()) {
             return response()->json([
+                'success' => false,
                 'status'  => 'error',
                 'message' => 'Validasi gagal',
                 'errors'  => $validator->errors()
@@ -65,6 +67,7 @@ class PendaftaranController  // Pastikan extends Controller
             ]);
 
             return response()->json([
+                'success' => true,
                 'status'  => 'success',
                 'message' => 'Pendaftaran anggota baru berhasil dikirim!',
                 'data'    => $pendaftaran
@@ -72,6 +75,7 @@ class PendaftaranController  // Pastikan extends Controller
 
         } catch (\Exception $e) {
             return response()->json([
+                'success' => false,
                 'status'  => 'error',
                 'message' => 'Terjadi kesalahan pada server: ' . $e->getMessage()
             ], 500);
@@ -80,15 +84,28 @@ class PendaftaranController  // Pastikan extends Controller
 
     public function updateStatus(Request $request, $id)
     {
-        $pendaftaran = \App\Models\PendaftaranBaru::find($id);
-        
-        if (!$pendaftaran) {
-            return response()->json(['message' => 'Data tidak ditemukan'], 404);
+        try {
+            $pendaftaran = PendaftaranBaru::find($id);
+            
+            if (!$pendaftaran) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Data tidak ditemukan'
+                ], 404);
+            }
+
+            $pendaftaran->status_pendaftaran = $request->status_pendaftaran;
+            $pendaftaran->save();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Status berhasil diubah'
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal mengubah status: ' . $e->getMessage()
+            ], 500);
         }
-
-        $pendaftaran->status_pendaftaran = $request->status_pendaftaran;
-        $pendaftaran->save();
-
-        return response()->json(['message' => 'Status berhasil diubah'], 200);
     }
 }

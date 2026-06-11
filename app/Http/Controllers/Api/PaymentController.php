@@ -15,7 +15,9 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Symfony\Component\HttpFoundation\Response;
 
-class PaymentController
+use App\Http\Controllers\Controller;
+
+class PaymentController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -252,15 +254,22 @@ class PaymentController
      */
     public function destroy(string $id)
     {
-        $payment = Payment::find($id);
+        try {
+            $payment = Payment::find($id);
 
-        if (!$payment) {
-            return ApiResponse::error(sprintf(ErrorMessages::MESSAGE_NOT_FOUND, 'Payment'), 404);
+            if (!$payment) {
+                return ApiResponse::error(sprintf(ErrorMessages::MESSAGE_NOT_FOUND, 'Payment'), 404);
+            }
+
+            if (!empty($payment->payment_evidence)) {
+                Storage::disk(FileConstant::FOLDER_PUBLIC)->delete($payment->payment_evidence);
+            }
+            
+            $payment->delete();
+
+            return ApiResponse::success(SuccessMessages::SUCCESS_DELETE_PAYMENT);
+        } catch (\Exception $e) {
+            return ApiResponse::error($e->getMessage(), 500);
         }
-
-        Storage::disk(FileConstant::FOLDER_PUBLIC)->delete($payment->payment_evidence);
-        $payment->delete();
-
-        return ApiResponse::success(SuccessMessages::SUCCESS_DELETE_PAYMENT);
     }
 }

@@ -2,21 +2,26 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Http\Controllers\Controller;
 use App\Http\Constants\SuccessMessages;
 use App\Http\Responses\ApiResponse;
 use App\Models\CategoryGallery;
 use Illuminate\Http\Request;
 
-class CategoryController
+class CategoryController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        $categories = CategoryGallery::orderBy('name', 'asc')->get();
+        try {
+            $categories = CategoryGallery::orderBy('name', 'asc')->get();
 
-        return ApiResponse::success(SuccessMessages::SUCCESS_GET_CATEGORY, $categories);
+            return ApiResponse::success(SuccessMessages::SUCCESS_GET_CATEGORY, $categories);
+        } catch (\Exception $e) {
+            return ApiResponse::error($e->getMessage(), 500);
+        }
     }
 
     /**

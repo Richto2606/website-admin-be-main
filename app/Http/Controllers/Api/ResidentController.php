@@ -13,7 +13,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
-class ResidentController
+use App\Http\Controllers\Controller;
+
+class ResidentController extends Controller
 {
 
     public function index(Request $request)
@@ -223,15 +225,19 @@ class ResidentController
 
     public function destroy(string $id)
     {
-        $resident = Resident::find($id);
+        try {
+            $resident = Resident::find($id);
 
-        if (!$resident) {
-            return ApiResponse::error(sprintf(ErrorMessages::MESSAGE_NOT_FOUND, 'Resident'), 404);
+            if (!$resident) {
+                return ApiResponse::error(sprintf(ErrorMessages::MESSAGE_NOT_FOUND, 'Resident'), 404);
+            }
+
+            $resident->status = 'inactive';
+            $resident->save();
+
+            return ApiResponse::success(SuccessMessages::SUCCESS_DELETE_RESIDENT);
+        } catch (\Exception $e) {
+            return ApiResponse::error($e->getMessage(), 500);
         }
-
-        $resident->status = 'inactive';
-        $resident->save();
-
-        return ApiResponse::success(SuccessMessages::SUCCESS_DELETE_RESIDENT);
     }
 }

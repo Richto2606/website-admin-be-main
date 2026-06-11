@@ -244,17 +244,26 @@ class GalleryController extends Controller
 
     public function destroy(string $id)
     {
-        $gallery = Gallery::find($id);
+        try {
+            $gallery = Gallery::find($id);
 
-        if (!$gallery) {
-            return ApiResponse::error(sprintf(ErrorMessages::MESSAGE_NOT_FOUND, 'Gallery'), 404);
+            if (!$gallery) {
+                return ApiResponse::error(sprintf(ErrorMessages::MESSAGE_NOT_FOUND, 'Gallery'), 404);
+            }
+
+            if (!empty($gallery->file)) {
+                Storage::disk(FileConstant::FOLDER_PUBLIC)->delete($gallery->file);
+            }
+
+            $gallery->delete();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Media berhasil dihapus'
+            ], 200);
+        } catch (\Exception $e) {
+            Log::error('Gallery deletion failed: ' . $e->getMessage());
+            return ApiResponse::error('Gagal menghapus media: ' . $e->getMessage(), 500);
         }
-
-        if ($gallery->type === FileConstant::TYPE_FOTO) {
-            Storage::disk(FileConstant::FOLDER_PUBLIC)->delete($gallery->file);
-        }
-        $gallery->delete();
-
-        return ApiResponse::success(SuccessMessages::SUCCESS_DELETE_GALLERY);
     }
 }
