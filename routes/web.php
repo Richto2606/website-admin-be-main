@@ -1,10 +1,30 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+// Import Controller Login Anda di sini, misalnya:
+// use App\Http\Controllers\Auth\LoginController; 
 
 Route::get('/', function () {
     return view('welcome');
 });
+
+// --- TAMBAHKAN ROUTE LOGIN DI SINI (Di luar middleware auth) ---
+// 1. Rute untuk menampilkan halaman/form login
+Route::get('/login', function () {
+    return view('auth.login'); // sesuaikan dengan nama file blade login Anda
+})->name('login');
+
+// 2. Rute untuk memproses submit form login (Menggunakan POST)
+Route::post('/login', function (\Illuminate\Http\Request $request) {
+    // Sementara untuk tes apakah rute POST sudah bekerja dan tidak error 405 lagi
+    return response()->json(['message' => 'Rute POST Login berhasil diakses!', 'data' => $request->all()]);
+    
+    // Nanti di sini Anda ganti dengan logika autentikasi, atau diarahkan ke Controller:
+    // return [LoginController::class, 'login'];
+});
+// ----------------------------------------------------------------
+
+
 
 // Semua route di bawah ini mewajibkan user untuk login (auth)
 Route::middleware(['auth'])->group(function () {
