@@ -21,8 +21,6 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Symfony\Component\HttpFoundation\Response;
 
-use App\Http\Controllers\Controller;
-
 class FinancialReportController extends Controller
 {
     /**

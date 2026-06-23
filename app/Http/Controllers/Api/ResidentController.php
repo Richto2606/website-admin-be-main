@@ -13,8 +13,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
-use App\Http\Controllers\Controller;
-
 class ResidentController extends Controller
 {
 

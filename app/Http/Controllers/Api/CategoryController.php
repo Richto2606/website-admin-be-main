@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\Controller;
 use App\Http\Constants\SuccessMessages;
 use App\Http\Responses\ApiResponse;
 use App\Models\CategoryGallery;

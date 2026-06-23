@@ -2,18 +2,16 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\Controller;
+use Illuminate\Routing\Controller as BaseController; // <-- PAKAI INI
 use App\Models\PendaftaranBaru;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
-class PendaftaranController extends Controller
+class PendaftaranController extends BaseController // <-- EXTEND INI
 {
-    // FUNGSI BARU: Untuk menampilkan data di tabel Dashboard Admin
     public function index()
     {
         try {
-            // Mengambil semua data pendaftar, urutkan dari yang terbaru
             $pendaftar = PendaftaranBaru::orderBy('created_at', 'desc')->get();
 
             return response()->json([
@@ -41,6 +39,7 @@ class PendaftaranController extends Controller
             'program_studi' => 'required|string|max:100',
             'jenis_kelamin' => 'required|in:Laki-laki,Perempuan',
             'no_hp'         => 'required|string|max:20',
+            'email'         => 'required|email|max:100', // <-- TAMBAHKAN INI
             'alamat_asal'   => 'required|string',
         ]);
 
@@ -62,6 +61,7 @@ class PendaftaranController extends Controller
                 'program_studi'     => $request->program_studi,
                 'jenis_kelamin'     => $request->jenis_kelamin,
                 'no_hp'             => $request->no_hp,
+                'email'             => $request->email, // <-- TAMBAHKAN INI
                 'alamat_asal'       => $request->alamat_asal,
                 'status_pendaftaran'=> 'Menunggu'
             ]);
@@ -82,7 +82,7 @@ class PendaftaranController extends Controller
         }
     }
 
-    public function updateStatus(Request $request, $id)
+    public function updateStatus(Request $request, int $id) // <-- TAMBAHKAN "int"
     {
         try {
             $pendaftaran = PendaftaranBaru::find($id);
