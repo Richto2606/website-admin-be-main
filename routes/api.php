@@ -11,6 +11,7 @@ use App\Http\Controllers\Api\RoomNumberController;
 use App\Http\Controllers\Api\OriginCityController;
 use App\Http\Controllers\Api\StaticController;
 use App\Http\Controllers\Api\PendaftaranController;
+use App\Http\Controllers\Api\UserController; // <-- TAMBAHKAN INI
 use App\Http\Middleware\HeaderMiddleware;
 use App\Http\Middleware\JwtMiddleware;
 use Illuminate\Support\Facades\Route;
@@ -51,6 +52,12 @@ Route::middleware([JwtMiddleware::class, HeaderMiddleware::class])->group(functi
 
         // Auth
         Route::post('/logout', [AuthController::class, 'logout']);
+
+        // 🔥 USER PROFILE (TAMBAHKAN INI)
+        Route::get('/user/profile', [UserController::class, 'profile']);
+        // Alternatif endpoint (bisa dipilih salah satu atau semua):
+        // Route::get('/me', [UserController::class, 'profile']);
+        // Route::get('/user', [UserController::class, 'profile']);
 
         // Residents
         Route::get('residents', [ResidentController::class, 'index']);

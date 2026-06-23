@@ -63,4 +63,30 @@ class UserController extends Controller
     {
         //
     }
+
+    /**
+     * 🔥 TAMBAHKAN METHOD INI: Get authenticated user profile
+     */
+    public function profile(Request $request)
+    {
+        try {
+            $user = $request->user();
+            
+            if (!$user) {
+                return ApiResponse::error('User tidak ditemukan', 404);
+            }
+
+            return ApiResponse::success('Data user berhasil diambil', [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                // Tambahkan field lain jika ada
+                // 'nomor_hp' => $user->nomor_hp,
+                // 'alamat' => $user->alamat,
+            ]);
+
+        } catch (\Exception $e) {
+            return ApiResponse::error('Gagal mengambil data user: ' . $e->getMessage(), 500);
+        }
+    }
 }
