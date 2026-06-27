@@ -26,7 +26,11 @@ class PendaftaranBaru extends Model
         'no_hp', 
         'alamat_asal', 
         'file_berkas', 
-        'status_pendaftaran'
+        'status_pendaftaran',
+        'nama_wali',
+        'semester',
+        'no_ortu_wali',
+        'nama_ortu_wali',
     ];
 
     // Buat relasi (Satu form pendaftaran dimiliki oleh satu User)
