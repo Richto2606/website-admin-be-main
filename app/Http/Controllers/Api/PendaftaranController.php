@@ -33,21 +33,21 @@ class PendaftaranController extends BaseController
 
  public function store(Request $request)
 {
-    $validator = Validator::make($request->all(), [
-        'nama_lengkap'  => 'required|string|max:100',
-        'nim'           => 'required|string|max:20',
-        'universitas'   => 'required|string|max:100',
-        'program_studi' => 'required|string|max:100',
-        'jenis_kelamin' => 'required|in:Laki-laki,Perempuan',
-        'no_hp'         => 'required|string|max:20',
-        'email'         => 'nullable|email|max:100',
-        'alamat_asal'   => 'required|string',
-        'nama_wali'     => 'nullable|string|max:100',
-        'semester'      => 'nullable|integer|min:1|max:14',
-        'no_ortu_wali'  => 'nullable|string|max:20',
-        'nama_ortu_wali'=> 'nullable|string|max:100',
-        'file_berkas'   => 'nullable|file|mimes:doc,docx,jpg,jpeg,png,pdf|max:2048',
-    ]);
+$validator = Validator::make($request->all(), [
+    'nama_lengkap'  => 'required|string|max:100',
+    'nim'           => 'required|string|max:20',
+    'universitas'   => 'required|string|max:100',
+    'program_studi' => 'required|string|max:100',
+    'jenis_kelamin' => 'required|in:Laki-laki,Perempuan',
+    'no_hp'         => 'required|string|max:20',
+    'email'         => 'nullable|email|max:100',      // ← HARUS nullable
+    'alamat_asal'   => 'required|string',
+    'nama_wali'     => 'nullable|string|max:100',     // ← HARUS nullable
+    'semester'      => 'nullable|integer|min:1|max:14', // ← HARUS nullable
+    'no_ortu_wali'  => 'nullable|string|max:20',      // ← HARUS nullable
+    'nama_ortu_wali'=> 'nullable|string|max:100',     // ← HARUS nullable
+    'file_berkas'   => 'nullable|file|mimes:doc,docx,jpg,jpeg,png,pdf|max:2048',
+]);
 
     if ($validator->fails()) {
         return response()->json([
