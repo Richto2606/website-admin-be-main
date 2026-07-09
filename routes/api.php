@@ -11,7 +11,7 @@ use App\Http\Controllers\Api\RoomNumberController;
 use App\Http\Controllers\Api\OriginCityController;
 use App\Http\Controllers\Api\StaticController;
 use App\Http\Controllers\Api\PendaftaranController;
-use App\Http\Controllers\Api\UserController; // <-- TAMBAHKAN INI
+use App\Http\Controllers\Api\UserController;
 use App\Http\Middleware\HeaderMiddleware;
 use App\Http\Middleware\JwtMiddleware;
 use Illuminate\Support\Facades\Route;
@@ -53,13 +53,21 @@ Route::middleware([JwtMiddleware::class, HeaderMiddleware::class])->group(functi
         // Auth
         Route::post('/logout', [AuthController::class, 'logout']);
 
-        // 🔥 USER PROFILE (TAMBAHKAN INI)
+        // 🔥 USER PROFILE
         Route::get('/user/profile', [UserController::class, 'profile']);
-        // Alternatif endpoint (bisa dipilih salah satu atau semua):
-        // Route::get('/me', [UserController::class, 'profile']);
-        // Route::get('/user', [UserController::class, 'profile']);
+        Route::get('/me', [UserController::class, 'profile']);
+        Route::get('/user', [UserController::class, 'profile']);
 
-        // Residents
+        // ==========================================
+        // 🔥 RESIDENTS (DARI PENDAFTARAN) - BARU
+        // ==========================================
+        Route::get('residents/user/{userId}', [ResidentController::class, 'getByUserId']);
+        Route::post('residents/from-pendaftaran', [ResidentController::class, 'storeFromPendaftaran']);
+        Route::put('residents/{id}/from-pendaftaran', [ResidentController::class, 'updateFromPendaftaran']);
+
+        // ==========================================
+        // RESIDENTS (SUDAH ADA)
+        // ==========================================
         Route::get('residents', [ResidentController::class, 'index']);
         Route::get('get-residents-index', [ResidentController::class, 'getIndex']);
         Route::post('residents', [ResidentController::class, 'store']);
@@ -67,25 +75,32 @@ Route::middleware([JwtMiddleware::class, HeaderMiddleware::class])->group(functi
         Route::put('residents/{id}', [ResidentController::class, 'update']);
         Route::delete('residents/{id}', [ResidentController::class, 'destroy']);
 
-        // Pendaftaran
+        // ==========================================
+        // PENDAFTARAN
+        // ==========================================
         Route::get('pendaftaran', [PendaftaranController::class, 'index']); 
         Route::post('pendaftaran', [PendaftaranController::class, 'store']);
         Route::put('pendaftaran/{id}', [PendaftaranController::class, 'updateStatus']);
 
-        // Master Data
+        // ==========================================
+        // MASTER DATA
+        // ==========================================
         Route::get('room-numbers', [RoomNumberController::class, 'index']);
         Route::get('origin-campuses', [OriginCampusController::class, 'index']);
         Route::get('origin-cities', [OriginCityController::class, 'index']);
 
-        // Galleries (Khusus aksi yang butuh login seperti Create, Update, Delete)
-        // Catatan: get('galleries') sudah ada di public
+        // ==========================================
+        // GALLERIES
+        // ==========================================
         Route::post('galleries', [GalleryController::class, 'store']);
         Route::get('galleries/{id}', [GalleryController::class, 'show']);
         Route::get('galleries/get-file/{id}', [GalleryController::class, 'showFile']);
         Route::put('galleries/{id}', [GalleryController::class, 'update']);
         Route::delete('galleries/{id}', [GalleryController::class, 'destroy']);
 
-        // Payments
+        // ==========================================
+        // PAYMENTS
+        // ==========================================
         Route::get('payments', [PaymentController::class, 'index']);
         Route::post('payments', [PaymentController::class, 'store']);
         Route::get('payments/{id}', [PaymentController::class, 'show']);
@@ -93,7 +108,9 @@ Route::middleware([JwtMiddleware::class, HeaderMiddleware::class])->group(functi
         Route::put('payments/{id}', [PaymentController::class, 'update']);
         Route::delete('payments/{id}', [PaymentController::class, 'destroy']);
 
-        // Reports
+        // ==========================================
+        // REPORTS
+        // ==========================================
         Route::get('reports', [FinancialReportController::class, 'index']);
         Route::post('reports', [FinancialReportController::class, 'store']);
         Route::post('reports/export', [FinancialReportController::class, 'exportReport']);
@@ -104,7 +121,9 @@ Route::middleware([JwtMiddleware::class, HeaderMiddleware::class])->group(functi
         Route::delete('reports/{id}', [FinancialReportController::class, 'destroy']);
         Route::get('reports/generate/get-file/{filename}', [FinancialReportController::class, 'showFileReport']);
 
-        // Grafik / Statistik
+        // ==========================================
+        // GRAFIK / STATISTIK
+        // ==========================================
         Route::get('residents/grafik/active', [StaticController::class, 'getResidentActive']);
         Route::get('rooms/grafik/occupied', [StaticController::class, 'getOccupiedRoom']);
         Route::get('payments/grafik/sync', [StaticController::class, 'getSinkronisasiPayment']);

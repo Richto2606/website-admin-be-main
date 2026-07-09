@@ -15,6 +15,8 @@ class Resident extends Model
     protected $table = 'residents';
 
     protected $fillable = [
+        'user_id',
+        'pendaftaran_id',
         'name',
         'age',
         'birth_date',
@@ -24,7 +26,18 @@ class Resident extends Model
         'phone_number',
         'room_number_id',
         'status',
+        'tanggal_masuk',
     ];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
+    public function pendaftaran()
+    {
+        return $this->belongsTo(PendaftaranBaru::class, 'pendaftaran_id', 'id_pendaftaran');
+    }
 
     public function originCities()
     {
@@ -41,18 +54,22 @@ class Resident extends Model
         return $this->belongsTo(RoomNumber::class);
     }
 
-    public function scopeByStatus($query, $status)
+    // 🔥 TAMBAHKAN TYPE HINT: \Illuminate\Database\Eloquent\Builder
+    public function scopeByStatus(\Illuminate\Database\Eloquent\Builder $query, string $status)
     {
         if ($status === 'active') {
             return $query->where('status', 'active');
-        } else {
+        }
+        
+        if ($status === 'inactive') {
             return $query->where('status', 'inactive');
         }
-
+        
         return $query;
     }
 
-    public function scopeByName($query, $name)
+    // 🔥 TAMBAHKAN TYPE HINT: \Illuminate\Database\Eloquent\Builder
+    public function scopeByName(\Illuminate\Database\Eloquent\Builder $query, string $name)
     {
         return $query->where('name', 'like', "%{$name}%");
     }
