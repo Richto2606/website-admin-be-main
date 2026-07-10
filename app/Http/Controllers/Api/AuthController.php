@@ -69,6 +69,11 @@ class AuthController extends Controller
 
    public function login(Request $request)
     {
+        $request->merge([
+            'email' => strtolower(trim((string) $request->email)),
+            'password' => trim((string) $request->password),
+        ]);
+
         $validator = Validator::make($request->all(), [
             'email' => 'required|email',
             'password' => 'required',

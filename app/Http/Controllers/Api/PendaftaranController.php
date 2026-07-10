@@ -3,10 +3,14 @@
 namespace App\Http\Controllers\Api;
 
 use Illuminate\Routing\Controller as BaseController;
+use App\Models\OriginCampus;
+use App\Models\OriginCity;
 use App\Models\PendaftaranBaru;
+use App\Models\Resident;
+use App\Models\RoomNumber;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\Storage;
 
 class PendaftaranController extends BaseController
 {
@@ -111,9 +115,21 @@ $validator = Validator::make($request->all(), [
 
     public function updateStatus(Request $request, int $id)  // <-- SUDAH ADA int
     {
+        $validator = Validator::make($request->all(), [
+            'status_pendaftaran' => 'required|in:Menunggu,Diterima,Ditolak',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validasi gagal',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
         try {
             $pendaftaran = PendaftaranBaru::find($id);
-            
+
             if (!$pendaftaran) {
                 return response()->json([
                     'success' => false,
@@ -121,12 +137,27 @@ $validator = Validator::make($request->all(), [
                 ], 404);
             }
 
-            $pendaftaran->status_pendaftaran = $request->status_pendaftaran;
-            $pendaftaran->save();
+            $resident = null;
+
+            DB::transaction(function () use ($request, $pendaftaran, &$resident) {
+                $pendaftaran->status_pendaftaran = $request->status_pendaftaran;
+                $pendaftaran->save();
+
+                if ($request->status_pendaftaran === 'Diterima') {
+                    $resident = $this->syncResidentFromPendaftaran($pendaftaran);
+                }
+            });
+
+            $message = 'Status berhasil diubah';
+
+            if ($request->status_pendaftaran === 'Diterima') {
+                $message .= ' dan resident berhasil dibuat atau diperbarui';
+            }
 
             return response()->json([
                 'success' => true,
-                'message' => 'Status berhasil diubah'
+                'message' => $message,
+                'data' => $resident
             ], 200);
         } catch (\Exception $e) {
             return response()->json([
@@ -134,6 +165,51 @@ $validator = Validator::make($request->all(), [
                 'message' => 'Gagal mengubah status: ' . $e->getMessage()
             ], 500);
         }
+    }
+
+    private function syncResidentFromPendaftaran(PendaftaranBaru $pendaftaran): Resident
+    {
+        $originCampus = OriginCampus::firstOrCreate(
+            ['name' => $pendaftaran->universitas],
+            ['description' => 'Dibuat otomatis dari pendaftaran']
+        );
+
+        $originCity = OriginCity::firstOrCreate(
+            ['name' => 'Belum Ditentukan'],
+            ['description' => 'Default dari pendaftaran anggota baru']
+        );
+
+        $roomNumber = RoomNumber::firstOrCreate(
+            ['name' => 'Belum Ditentukan'],
+            ['description' => 'Default dari pendaftaran anggota baru']
+        );
+
+        $residentData = [
+            'user_id' => $pendaftaran->user_id,
+            'pendaftaran_id' => $pendaftaran->id_pendaftaran,
+            'name' => $pendaftaran->nama_lengkap,
+            'age' => 0,
+            'birth_date' => now()->toDateString(),
+            'address' => $pendaftaran->alamat_asal,
+            'origin_city_id' => $originCity->id,
+            'origin_campus_id' => $originCampus->id,
+            'phone_number' => $pendaftaran->no_hp,
+            'room_number_id' => $roomNumber->id,
+            'status' => 'active',
+            'tanggal_masuk' => now()->toDateString(),
+        ];
+
+        $resident = Resident::where('pendaftaran_id', $pendaftaran->id_pendaftaran)
+            ->orWhere('user_id', $pendaftaran->user_id)
+            ->first();
+
+        if ($resident) {
+            $resident->update($residentData);
+
+            return $resident;
+        }
+
+        return Resident::create($residentData);
     }
 
     public function showFile(int $id)  // <-- TAMBAHKAN "int"

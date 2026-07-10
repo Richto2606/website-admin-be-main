@@ -20,11 +20,13 @@ return [
     'allowed_origins' => [
         'https://website-public-main.pages.dev',
         'https://website-admin-fe-main.pages.dev',
+        'https://asramaputrakukar.my.id',
+        'https://admin.asramaputrakukar.my.id',
         'http://localhost:3000',
-        'http://localhost:5173', // Opsional, jika Vite lokal Anda jalan di port ini
+        'http://127.0.0.1:3000',
+        'http://localhost:5173',
+        'http://127.0.0.1:5173',
     ],
-
-    'allowed_origins' => ['*'],
 
     'allowed_origins_patterns' => [],
 
