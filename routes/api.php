@@ -38,7 +38,7 @@ Route::group([
 Route::middleware([HeaderMiddleware::class])->group(function () {
     Route::prefix('v1/public')->group(function () {
         Route::get('categories', [CategoryController::class, 'index']);
-        Route::get('galleries', [GalleryController::class, 'index']);
+        Route::get('galleries', [GalleryController::class, 'index']); // ✅ SUDAH ADA
     });
 });
 
@@ -92,6 +92,8 @@ Route::middleware([JwtMiddleware::class, HeaderMiddleware::class])->group(functi
         // ==========================================
         // GALLERIES
         // ==========================================
+        // ✅ TAMBAHKAN ROUTE GET UNTUK GALLERIES
+        Route::get('galleries', [GalleryController::class, 'index']); // ← DITAMBAHKAN
         Route::post('galleries', [GalleryController::class, 'store']);
         Route::get('galleries/{id}', [GalleryController::class, 'show']);
         Route::get('galleries/get-file/{id}', [GalleryController::class, 'showFile']);

@@ -235,24 +235,25 @@ class DummyDatabaseSeeder extends Seeder
             );
         });
 
+        // ✅ PERBAIKI BAGIAN INI (GALLERY)
         collect([
             [
                 'title' => 'Foto Kamar A1',
                 'type' => 'Foto',
                 'category_id' => $categories['Fasilitas']->id,
-                'url' => 'https://example.com/fasilitas-kamar-a1.jpg',
+                'url' => 'http://localhost:8000/storage/gallery/fasilitas-kamar-a1.jpg',
             ],
             [
                 'title' => 'Kegiatan Bersih Asrama',
                 'type' => 'Foto',
                 'category_id' => $categories['Kegiatan & Aktifitas']->id,
-                'url' => 'https://example.com/kegiatan-bersih-asrama.jpg',
+                'url' => 'http://localhost:8000/storage/gallery/kegiatan-bersih-asrama.jpg',
             ],
             [
                 'title' => 'Malam Keakraban',
                 'type' => 'Video',
                 'category_id' => $categories['Hiburan']->id,
-                'url' => 'https://example.com/malam-keakraban',
+                'url' => 'http://localhost:8000/storage/gallery/malam-keakraban',
             ],
         ])->each(function (array $gallery) {
             Gallery::updateOrCreate(
