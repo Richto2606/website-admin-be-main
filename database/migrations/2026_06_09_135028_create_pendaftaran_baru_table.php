@@ -16,6 +16,8 @@ return new class extends Migration
             $table->string('program_studi', 100);
             $table->enum('jenis_kelamin', ['Laki-laki', 'Perempuan']);
             $table->string('no_hp', 20);
+            $table->unsignedTinyInteger('umur')->nullable();
+            $table->string('email', 100)->nullable();
             $table->text('alamat_asal');
             $table->string('file_berkas', 255)->nullable();
             $table->enum('status_pendaftaran', ['Menunggu', 'Diterima', 'Ditolak'])->default('Menunggu');

@@ -17,6 +17,10 @@ class HeaderMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
+        if ($request->isMethod('OPTIONS')) {
+            return $next($request);
+        }
+
         $apiKey = $request->header('X-API-KEY');
         $validApiKey = env('API_KEY');
 

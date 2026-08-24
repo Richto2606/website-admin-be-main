@@ -8,9 +8,12 @@ use App\Models\OriginCity;
 use App\Models\PendaftaranBaru;
 use App\Models\Resident;
 use App\Models\RoomNumber;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 
 class PendaftaranController extends BaseController
 {
@@ -44,7 +47,8 @@ $validator = Validator::make($request->all(), [
     'program_studi' => 'required|string|max:100',
     'jenis_kelamin' => 'required|in:Laki-laki,Perempuan',
     'no_hp'         => 'required|string|max:20',
-    'email'         => 'nullable|email|max:100',      // ← HARUS nullable
+    'umur'          => 'required|integer|min:1|max:120',
+    'email'         => 'required|email|max:100',
     'alamat_asal'   => 'required|string',
     'nama_wali'     => 'nullable|string|max:100',     // ← HARUS nullable
     'semester'      => 'nullable|integer|min:1|max:14', // ← HARUS nullable
@@ -63,6 +67,15 @@ $validator = Validator::make($request->all(), [
     }
 
     try {
+        $user = User::firstOrCreate(
+            ['email' => $request->email],
+            [
+                'name' => $request->nama_lengkap,
+                'password' => Hash::make(Str::random(40)),
+                'role' => 'user',
+            ]
+        );
+
         // Buat folder jika belum ada
         $uploadPath = public_path('uploads/berkas');
         if (!file_exists($uploadPath)) {
@@ -80,19 +93,16 @@ $validator = Validator::make($request->all(), [
 
         // 🔥 SIMPAN SEMUA FIELD
         $pendaftaran = PendaftaranBaru::create([
-            'user_id'           => $request->user()->id,
+            'user_id'           => $user->id,
             'nama_lengkap'      => $request->nama_lengkap,
             'nim'               => $request->nim,
             'universitas'       => $request->universitas,
             'program_studi'     => $request->program_studi,
             'jenis_kelamin'     => $request->jenis_kelamin,
             'no_hp'             => $request->no_hp,
+            'umur'              => $request->umur,
             'email'             => $request->email,
             'alamat_asal'       => $request->alamat_asal,
-            'nama_wali'         => $request->nama_wali,
-            'semester'          => $request->semester,
-            'no_ortu_wali'      => $request->no_ortu_wali,
-            'nama_ortu_wali'    => $request->nama_ortu_wali,
             'file_berkas'       => $filePath,
             'status_pendaftaran'=> 'Menunggu'
         ]);
@@ -188,7 +198,7 @@ $validator = Validator::make($request->all(), [
             'user_id' => $pendaftaran->user_id,
             'pendaftaran_id' => $pendaftaran->id_pendaftaran,
             'name' => $pendaftaran->nama_lengkap,
-            'age' => 0,
+            'age' => $pendaftaran->umur ?? 0,
             'birth_date' => now()->toDateString(),
             'address' => $pendaftaran->alamat_asal,
             'origin_city_id' => $originCity->id,

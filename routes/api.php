@@ -39,6 +39,7 @@ Route::middleware([HeaderMiddleware::class])->group(function () {
     Route::prefix('v1/public')->group(function () {
         Route::get('categories', [CategoryController::class, 'index']);
         Route::get('galleries', [GalleryController::class, 'index']); // ✅ SUDAH ADA
+        Route::post('pendaftaran', [PendaftaranController::class, 'store']);
     });
 });
 
@@ -79,7 +80,6 @@ Route::middleware([JwtMiddleware::class, HeaderMiddleware::class])->group(functi
         // PENDAFTARAN
         // ==========================================
         Route::get('pendaftaran', [PendaftaranController::class, 'index']); 
-        Route::post('pendaftaran', [PendaftaranController::class, 'store']);
         Route::put('pendaftaran/{id}', [PendaftaranController::class, 'updateStatus']);
 
         // ==========================================

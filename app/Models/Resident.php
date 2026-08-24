@@ -41,17 +41,17 @@ class Resident extends Model
 
     public function originCities()
     {
-        return $this->belongsTo(OriginCity::class);
+        return $this->belongsTo(OriginCity::class, 'origin_city_id');
     }
 
     public function originCampuses()
     {
-        return $this->belongsTo(OriginCampus::class);
+        return $this->belongsTo(OriginCampus::class, 'origin_campus_id');
     }
 
     public function roomNumbers()
     {
-        return $this->belongsTo(RoomNumber::class);
+        return $this->belongsTo(RoomNumber::class, 'room_number_id');
     }
 
     // 🔥 TAMBAHKAN TYPE HINT: \Illuminate\Database\Eloquent\Builder
