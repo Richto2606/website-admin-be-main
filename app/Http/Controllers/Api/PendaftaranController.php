@@ -47,7 +47,8 @@ $validator = Validator::make($request->all(), [
     'program_studi' => 'required|string|max:100',
     'jenis_kelamin' => 'required|in:Laki-laki,Perempuan',
     'no_hp'         => 'required|string|max:20',
-    'umur'          => 'required|integer|min:1|max:120',
+     'tanggal_lahir' => 'required|date|before:today',
+     'umur'          => 'required|integer|min:1|max:120',
     'email'         => 'required|email|max:100',
     'alamat_asal'   => 'required|string',
     'nama_wali'     => 'nullable|string|max:100',     // ← HARUS nullable
@@ -100,9 +101,14 @@ $validator = Validator::make($request->all(), [
             'program_studi'     => $request->program_studi,
             'jenis_kelamin'     => $request->jenis_kelamin,
             'no_hp'             => $request->no_hp,
+            'tanggal_lahir'     => $request->tanggal_lahir,
             'umur'              => $request->umur,
             'email'             => $request->email,
             'alamat_asal'       => $request->alamat_asal,
+            'nama_wali'         => $request->nama_wali,
+            'semester'          => $request->semester,
+            'no_ortu_wali'      => $request->no_ortu_wali,
+            'nama_ortu_wali'    => $request->nama_ortu_wali,
             'file_berkas'       => $filePath,
             'status_pendaftaran'=> 'Menunggu'
         ]);
@@ -185,21 +191,27 @@ $validator = Validator::make($request->all(), [
         );
 
         $originCity = OriginCity::firstOrCreate(
-            ['name' => 'Belum Ditentukan'],
-            ['description' => 'Default dari pendaftaran anggota baru']
+            ['name' => 'Kutai Kartanegara'],
+            ['description' => 'Asal kota default dari pendaftaran anggota baru']
         );
 
-        $roomNumber = RoomNumber::firstOrCreate(
-            ['name' => 'Belum Ditentukan'],
-            ['description' => 'Default dari pendaftaran anggota baru']
-        );
+        $roomNumber = RoomNumber::where('name', '!=', 'Belum Ditentukan')
+            ->whereDoesntHave('residents', function ($query) {
+                $query->where('status', 'active');
+            })
+            ->orderBy('name')
+            ->first();
+
+        if (!$roomNumber) {
+            throw new \RuntimeException('Tidak ada nomor kamar kosong.');
+        }
 
         $residentData = [
             'user_id' => $pendaftaran->user_id,
             'pendaftaran_id' => $pendaftaran->id_pendaftaran,
             'name' => $pendaftaran->nama_lengkap,
-            'age' => $pendaftaran->umur ?? 0,
-            'birth_date' => now()->toDateString(),
+            'age' => $pendaftaran->umur,
+            'birth_date' => $pendaftaran->tanggal_lahir,
             'address' => $pendaftaran->alamat_asal,
             'origin_city_id' => $originCity->id,
             'origin_campus_id' => $originCampus->id,

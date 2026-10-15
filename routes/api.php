@@ -79,8 +79,10 @@ Route::middleware([JwtMiddleware::class, HeaderMiddleware::class])->group(functi
         // ==========================================
         // PENDAFTARAN
         // ==========================================
-        Route::get('pendaftaran', [PendaftaranController::class, 'index']); 
-        Route::put('pendaftaran/{id}', [PendaftaranController::class, 'updateStatus']);
+        Route::middleware('role:Admin,Bendahara')->group(function () {
+            Route::get('pendaftaran', [PendaftaranController::class, 'index']);
+            Route::put('pendaftaran/{id}', [PendaftaranController::class, 'updateStatus']);
+        });
 
         // ==========================================
         // MASTER DATA
@@ -103,25 +105,35 @@ Route::middleware([JwtMiddleware::class, HeaderMiddleware::class])->group(functi
         // ==========================================
         // PAYMENTS
         // ==========================================
-        Route::get('payments', [PaymentController::class, 'index']);
-        Route::post('payments', [PaymentController::class, 'store']);
-        Route::get('payments/{id}', [PaymentController::class, 'show']);
-        Route::get('payments/get-file/{id}', [PaymentController::class, 'showFile']);
-        Route::put('payments/{id}', [PaymentController::class, 'update']);
-        Route::delete('payments/{id}', [PaymentController::class, 'destroy']);
+        Route::middleware('role:Admin,Bendahara')->group(function () {
+            Route::get('payments', [PaymentController::class, 'index']);
+            Route::post('payments', [PaymentController::class, 'store']);
+            Route::get('payments/{id}', [PaymentController::class, 'show']);
+            Route::get('payments/get-file/{id}', [PaymentController::class, 'showFile']);
+            Route::put('payments/{id}', [PaymentController::class, 'update']);
+        });
+
+        Route::middleware('role:Admin')->group(function () {
+            Route::delete('payments/{id}', [PaymentController::class, 'destroy']);
+        });
 
         // ==========================================
         // REPORTS
         // ==========================================
-        Route::get('reports', [FinancialReportController::class, 'index']);
-        Route::post('reports', [FinancialReportController::class, 'store']);
-        Route::post('reports/export', [FinancialReportController::class, 'exportReport']);
-        Route::get('reports/{id}', [FinancialReportController::class, 'show']);
-        Route::get('reports/get-file/{id}', [FinancialReportController::class, 'showFile']);
-        Route::put('reports/{id}', [FinancialReportController::class, 'update']);
-        Route::put('reports-sync', [FinancialReportController::class, 'syncPayment']);
-        Route::delete('reports/{id}', [FinancialReportController::class, 'destroy']);
-        Route::get('reports/generate/get-file/{filename}', [FinancialReportController::class, 'showFileReport']);
+        Route::middleware('role:Admin,Bendahara')->group(function () {
+            Route::get('reports', [FinancialReportController::class, 'index']);
+            Route::post('reports', [FinancialReportController::class, 'store']);
+            Route::post('reports/export', [FinancialReportController::class, 'exportReport']);
+            Route::get('reports/{id}', [FinancialReportController::class, 'show']);
+            Route::get('reports/get-file/{id}', [FinancialReportController::class, 'showFile']);
+            Route::put('reports/{id}', [FinancialReportController::class, 'update']);
+            Route::get('reports/generate/get-file/{filename}', [FinancialReportController::class, 'showFileReport']);
+        });
+
+        Route::middleware('role:Admin')->group(function () {
+            Route::put('reports-sync', [FinancialReportController::class, 'syncPayment']);
+            Route::delete('reports/{id}', [FinancialReportController::class, 'destroy']);
+        });
 
         // ==========================================
         // GRAFIK / STATISTIK

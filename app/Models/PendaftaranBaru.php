@@ -20,6 +20,7 @@ protected $fillable = [
     'program_studi', 
     'jenis_kelamin', 
     'no_hp',
+    'tanggal_lahir',
     'umur',
     'email',
     'alamat_asal',

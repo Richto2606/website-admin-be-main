@@ -34,6 +34,15 @@ class DummyDatabaseSeeder extends Seeder
             ]
         );
 
+        User::updateOrCreate(
+            ['email' => 'bendahara@asrama.test'],
+            [
+                'name' => 'Bendahara Asrama',
+                'password' => 'password',
+                'role' => 'Bendahara',
+            ]
+        );
+
         $users = collect([
             ['name' => 'Budi Santoso', 'email' => 'budi@asrama.test'],
             ['name' => 'Siti Aminah', 'email' => 'siti@asrama.test'],
@@ -84,7 +93,7 @@ class DummyDatabaseSeeder extends Seeder
             return [$name => OriginCity::firstOrCreate(['name' => $name], ['description' => 'Data dummy'])];
         });
 
-        $rooms = collect(['A1', 'A2', 'B1', 'B2', 'C1', 'C2'])->mapWithKeys(function (string $name) {
+        $rooms = collect(['A1', 'A2', 'B1', 'B2', 'C1', 'C2', 'D1', 'D2', 'E1', 'E2', 'F1', 'F2', 'G1', 'G2', 'H1', 'H2'])->mapWithKeys(function (string $name) {
             return [$name => RoomNumber::firstOrCreate(['name' => $name], ['description' => 'Kamar dummy'])];
         });
 
